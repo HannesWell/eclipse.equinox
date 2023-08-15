@@ -6,4 +6,4 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Eclipse.org - Equinox
 Fragment-Host: org.eclipse.osgi;bundle-version="[3.18,4)"
 Automatic-Module-Name: org.eclipse.equinox.spi
-Bundle-RequiredExecutionEnvironment: JavaSE-9
+Bundle-RequiredExecutionEnvironment: JavaSE-17

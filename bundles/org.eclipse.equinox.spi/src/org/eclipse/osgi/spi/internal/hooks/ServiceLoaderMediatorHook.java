@@ -61,6 +61,10 @@ public class ServiceLoaderMediatorHook extends ClassLoaderHook {
 	// TODO: Consider to provide this in a system-bundle fragment that requires
 	// Java-9 and register it via a HOOK_CONFIGURATORS_FILE, see HookRegistry
 
+	// TODO: Extend the class that writes the config.ini to automatically add this
+	// framework extension when it is installed?! Check if this is then used in
+	// Tycho and PDE.
+
 	private static final String SERVICE_NAME_PREFIX = "META-INF/services/"; //$NON-NLS-1$
 
 	private static final Function<Function<Stream<Class<?>>, Object>, Object> CALLER_CLASS = getCallerClassComputer();
