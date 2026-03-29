@@ -70,6 +70,7 @@ public class ServiceLoaderMediatorHook extends ClassLoaderHook {
 	private static final Function<Function<Stream<Class<?>>, Object>, Object> CALLER_CLASS = getCallerClassComputer();
 	private static final int CALLER_SEARCH_DEPTH = 13;
 
+	// TODO: Implement this as plain code and use a multi-release jar
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static <T> Function<Function<Stream<Class<?>>, T>, T> getCallerClassComputer() {
 		try { // The Java-9+ way
@@ -188,8 +189,8 @@ public class ServiceLoaderMediatorHook extends ClassLoaderHook {
 			if (hasServiceProviderRequirement(wiring)) {
 				Map<String, List<String>> provided = new HashMap<>();
 				// TODO: how to treat fragments. They should be considered as part of the host?
-				// If lists are merged, handle fragment removal. Or merge on demand to simplify
-				// tracking?
+				// If lists are merged, handle fragment removal. Or merge fragment's lists on
+				// call to simplify tracking?
 				Enumeration<String> serviceProviderEntries = bundle.getEntryPaths(SERVICE_NAME_PREFIX);
 				while (serviceProviderEntries.hasMoreElements()) {
 					String path = serviceProviderEntries.nextElement();
@@ -201,21 +202,22 @@ public class ServiceLoaderMediatorHook extends ClassLoaderHook {
 					URL entry = bundle.getEntry(path);
 					try (InputStream is = entry.openStream();
 							BufferedReader reader = new BufferedReader(new InputStreamReader(is));) {
-						for (String providerName; (providerName = reader.readLine()) != null;) {
-							String classname = getServiceImplementorName(providerName);
-							if (!classname.isEmpty()) {
-								provided.computeIfAbsent(service, n -> new ArrayList<>()).add(classname);
-							}
-						}
+						List<String> providedServices = provided.computeIfAbsent(service, n -> new ArrayList<>());
+						reader.lines() //
+								.map(BundleServices::getServiceImplementorName) //
+								.filter(n -> !n.isEmpty()) //
+								.forEach(providedServices::add);
 					} catch (IOException e) { // TODO: ignore, log?
 					}
 				}
+				provided.values().removeIf(List::isEmpty); // Service file might have been empty
 				return provided;
 			}
 			return Collections.emptyMap();
 		}
 
-		private String getServiceImplementorName(String providerName) {
+		private static String getServiceImplementorName(String providerName) {
+			// TODO: Check the spec again if comments at the end are allowed?
 			int commentIndex = providerName.indexOf('#');
 			if (commentIndex >= 0) {
 				providerName = providerName.substring(0, commentIndex);
@@ -247,10 +249,11 @@ public class ServiceLoaderMediatorHook extends ClassLoaderHook {
 				BundleServices services = new BundleServices(bundle, wiring);
 				if (!services.consumedServices.isEmpty() || !services.providedServices.isEmpty()) {
 					services.providedServices.forEach((service, providers) -> {
+						// TODO: write lock in this case?
 						for (String serviceClassname : providers) {
 							if (allProvidedServices.putIfAbsent(serviceClassname, service) != null) {
-								// TODO: or handle this? Could happen with multiple versions of a bundle
-								// installed
+								// TODO: or handle this? Could e.g. happen with multiple versions of a bundle
+								// installed or if two bundles provide the same service impl name for any reason
 								throw new IllegalStateException("Service provider class available more than once:" //$NON-NLS-1$
 										+ serviceClassname);
 							}
@@ -265,6 +268,7 @@ public class ServiceLoaderMediatorHook extends ClassLoaderHook {
 		@Override
 		public void removedBundle(Bundle bundle, BundleEvent event, BundleServices services) {
 			for (List<String> providers : services.providedServices.values()) {
+				// TODO: write lock in this case?
 				for (String classname : providers) {
 					allProvidedServices.remove(classname);
 				}
@@ -314,7 +318,7 @@ public class ServiceLoaderMediatorHook extends ClassLoaderHook {
 			Bundle bundle = classLoader.getBundle();
 			if (serviceBundleTracker.consumesService(bundle, serviceName)
 					&& walkCallerClasses(s -> s.anyMatch(c -> c == SERVICE_LOADER_GET_RESOURCES_CALLER))
-					.booleanValue()) {
+							.booleanValue()) {
 				List<URL> services = searchProviderClassLoaders(serviceName, bundle, classLoader).flatMap(cl -> {
 					try {
 						Enumeration<URL> resources = cl.getResources(name);
@@ -391,6 +395,7 @@ public class ServiceLoaderMediatorHook extends ClassLoaderHook {
 		}
 		return requiredWires.stream()
 				.anyMatch(w -> w.getRequirement().getDirectives().getOrDefault("filter", "").contains(filter) //$NON-NLS-1$ //$NON-NLS-2$
+						// TODO: Why system-bundle? to check this framework-extension SPI is used?
 						&& w.getProvider().getBundle().getBundleId() == Constants.SYSTEM_BUNDLE_ID);
 	}
 
