@@ -66,12 +66,6 @@ import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -151,14 +145,14 @@ public class Main {
 	private List<String> extensionPaths = null;
 
 	private JNIBridge bridge = null;
-	private Future<SplashScreen> splashScreen = null;
+	private SplashScreen splashScreen = null;
 
 	// splash handling
 	private boolean showSplash = false;
 	private String splashLocation = null;
 	private String endSplash = null;
 	private boolean initialize = false;
-	private volatile boolean splashDown = false;
+	private boolean splashDown = false;
 
 	public final class SplashHandler extends Thread {
 		@Override
@@ -169,7 +163,7 @@ public class Main {
 		//Called reflectively by org.eclipse.core.runtime.internal.adaptor.DefaultStartupMonitor
 		public void updateSplash() {
 			if (splashScreen != null && !splashDown) {
-				getSplashScreen().ifPresent(SplashScreen::update);
+				splashScreen.update();
 			}
 		}
 	}
@@ -2094,27 +2088,16 @@ public class Main {
 			return;
 		}
 		if (bridge != null) {
-			bridge.setLauncherInfo(System.getProperty(PROP_LAUNCHER), System.getProperty(PROP_LAUNCHER_NAME));
+			bridge.setLauncherInfo(System.getProperty(PROP_LAUNCHER), System.getProperty(PROP_LAUNCHER_NAME));;
 		}
-		ExecutorService exec = Executors.newSingleThreadExecutor();
-		splashScreen = exec.submit(() -> {
-			SplashScreen splash = SplashScreen.show(Path.of(splashLocation), configurationLocation, ws + "." + os + "." + arch); //$NON-NLS-1$ //$NON-NLS-2$
-			if (splash != null) {
-				System.setProperty(SPLASH_HANDLE, String.valueOf(splash.getHandle()));
-				System.setProperty(SPLASH_LOCATION, splashLocation);
-				splash.update();
-			} else {
-				// couldn't show the splash screen for some reason
-				splashDown = true;
-			}
-			return splash;
-		});
-		exec.shutdown();
-		try {
-			splashScreen.get();
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		splashScreen = SplashScreen.show(Path.of(splashLocation), configurationLocation, ws + "." + os + "." + arch); //$NON-NLS-1$ //$NON-NLS-2$
+		if (splashScreen != null) {
+			System.setProperty(SPLASH_HANDLE, String.valueOf(splashScreen.getHandle()));
+			System.setProperty(SPLASH_LOCATION, splashLocation);
+			splashScreen.update();
+		} else {
+			// couldn't show the splash screen for some reason
+			splashDown = true;
 		}
 	}
 
@@ -2125,21 +2108,14 @@ public class Main {
 		if (splashDown || splashScreen == null) { // splash is already down
 			return;
 		}
-		splashDown = getSplashScreen().filter(s -> !s.takeDown()).isEmpty();
+
+		splashDown = splashScreen.takeDown();
 		System.clearProperty(SPLASH_HANDLE);
 
 		try {
 			Runtime.getRuntime().removeShutdownHook(splashHandler);
 		} catch (Throwable e) {
 			// OK to ignore this, happens when the VM is already shutting down
-		}
-	}
-
-	private Optional<SplashScreen> getSplashScreen() {
-		try {
-			return Optional.ofNullable(splashScreen.get(3, TimeUnit.SECONDS));
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
-			return Optional.empty();
 		}
 	}
 

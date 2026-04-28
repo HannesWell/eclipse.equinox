@@ -80,7 +80,6 @@ public abstract class SplashScreen {
 
 		}
 		if (swtBundles.isEmpty()) {
-			long start = System.currentTimeMillis();
 			Path bundlesInfo = Path.of(configurationLocation.toURI()).resolve("org.eclipse.equinox.simpleconfigurator/bundles.info"); //$NON-NLS-1$
 			if (Files.isRegularFile(bundlesInfo)) {
 				try (var lines = Files.lines(bundlesInfo)) {
@@ -88,7 +87,6 @@ public abstract class SplashScreen {
 					addBundleLocations(swtBundles, lines.filter(l -> prefixes.stream().anyMatch(p -> l.startsWith(p))).map(l -> l.split(",")[2])); //$NON-NLS-1$
 				}
 			}
-			System.out.println("Read took: " + (System.currentTimeMillis() - start));
 		}
 		if (swtBundles.isEmpty()) {
 			return null;
@@ -120,6 +118,7 @@ public abstract class SplashScreen {
 
 		public static SplashScreen load(Path imagePath) {
 			//TODO: Run this in a different thread and just interrupt it, when the splash is to take down?
+			// This could also be integreated with the concurrency issue and the update of the splash? Or just leave it as it is?
 			Display display = new Display() {
 				@Override
 				protected void checkSubclass() {
