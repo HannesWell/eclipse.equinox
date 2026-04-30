@@ -14,17 +14,14 @@
 package org.eclipse.osgi.service.runnable;
 
 /**
- * Like a {@link java.lang.Runnable}, an object which captures a block of code which can
- * be passed around and executed.  Unlike standard runnables, paramaterized
- * runnables allow an arbitrary {@link java.lang.Object} to be passed in when the
- * block is evaluated.
+ * Like a {@link java.lang.Runnable}, an object which captures a block of code
+ * which can be passed around and executed. Unlike standard runnables,
+ * paramaterized runnables allow an arbitrary {@link java.lang.Object} to be
+ * passed in when the block is evaluated.
  * <p>
  * Clients may implement this interface.
  * </p>
- * <p>
- * This class is for internal use by the platform-related plug-ins.
- * Clients outside of the base platform should not reference or subclass this class.
- * </p>
+ * 
  * @since 3.0
  */
 public interface ParameterizedRunnable {

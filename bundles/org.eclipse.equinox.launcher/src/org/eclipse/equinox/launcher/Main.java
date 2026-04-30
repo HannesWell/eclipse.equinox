@@ -87,6 +87,9 @@ import java.util.zip.ZipFile;
  */
 public class Main {
 
+	//TODO: Can more tasks, like reading the ini can be done in java ?
+	// Maybe already now as the library is loaded from this class? Probably it is already, but the exe does so much more...
+
 	/**
 	 * Indicates whether this instance is running in debug mode.
 	 */

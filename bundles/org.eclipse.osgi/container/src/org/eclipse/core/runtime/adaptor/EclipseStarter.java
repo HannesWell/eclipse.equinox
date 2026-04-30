@@ -557,6 +557,7 @@ public class EclipseStarter {
 		if (endSplashHandler == null)
 			return;
 		// register the output stream to the launcher if it exists
+		// FIXME: DOesn't exist anymore?!
 		try {
 			Method method = endSplashHandler.getClass().getMethod("getOutputStream", new Class[0]); //$NON-NLS-1$
 			Object outputStream = method.invoke(endSplashHandler, new Object[0]);

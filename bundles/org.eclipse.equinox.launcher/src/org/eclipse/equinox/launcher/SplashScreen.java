@@ -35,6 +35,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
+/**
+ * @noreference This class is not intended to be referenced by clients.
+ * @noextend This class is not intended to be subclassed by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ */
 public abstract class SplashScreen {
 
 	public abstract long getHandle();
@@ -65,7 +70,7 @@ public abstract class SplashScreen {
 	private static final String REFERENCE_PREFIX = "reference:"; //$NON-NLS-1$
 
 	//TODO: Explain this construct and its rational here in code
-
+	//TODO: Consider dev entries in debug mode
 	private static URLClassLoader createSWTClassLoader(URL configurationLocation, String platformConfiguration) throws IOException, URISyntaxException {
 		List<String> swtBundleNames = List.of( //
 				"org.eclipse.swt." + platformConfiguration, //$NON-NLS-1$
