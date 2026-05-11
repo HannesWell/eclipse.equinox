@@ -58,7 +58,7 @@ public class JNIBridgeTest {
 		String os = System.getProperty("osgi.os"); //$NON-NLS-1$
 		String ws = System.getProperty("osgi.ws"); //$NON-NLS-1$
 		String arch = System.getProperty("osgi.arch"); //$NON-NLS-1$
-		Path launcherDir = binariesRoot.resolve("org.eclipse.equinox.launcher." + ws + "." + os + "." + arch); //$NON-NLS-1$ //$NON-NLS-2$
+		Path launcherDir = binariesRoot.resolve(String.format("org.eclipse.equinox.launcher.%s.%s.%s", ws, os, arch)); //$NON-NLS-1$
 		try (Stream<Path> files = Files.walk(launcherDir, 1).filter(Files::isRegularFile)) {
 			return files.filter(file -> {
 				String filename = file.getFileName().toString();
