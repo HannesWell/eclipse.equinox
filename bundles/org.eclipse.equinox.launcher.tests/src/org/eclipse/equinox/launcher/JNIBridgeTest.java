@@ -62,8 +62,18 @@ public class JNIBridgeTest {
 		try (Stream<Path> files = Files.walk(launcherDir, 1).filter(Files::isRegularFile)) {
 			return files.filter(file -> {
 				String filename = file.getFileName().toString();
-				return filename.startsWith("eclipse_") && filename.endsWith(os.contains("win") ? ".dll" : ".so"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				return filename.startsWith("eclipse_") && hasLauncherLibraryExtension(filename, os); //$NON-NLS-1$
 			}).findFirst().orElseThrow(() -> new IllegalStateException("No launcher library found in " + launcherDir)); //$NON-NLS-1$
 		}
+	}
+
+	private static boolean hasLauncherLibraryExtension(String filename, String os) {
+		if (os.contains("win")) { //$NON-NLS-1$
+			return filename.endsWith(".dll"); //$NON-NLS-1$
+		}
+		if (os.contains("mac")) { //$NON-NLS-1$
+			return filename.endsWith(".dylib") || filename.endsWith(".jnilib") || filename.endsWith(".so"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+		return filename.endsWith(".so"); //$NON-NLS-1$
 	}
 }
