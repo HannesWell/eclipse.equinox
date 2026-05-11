@@ -19,6 +19,7 @@
 #include "eclipseShm.h"
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 
@@ -31,7 +32,7 @@ static _TCHAR* mainClassNotFound = _T_ECLIPSE("Failed to find a Main Class in \"
 static JNINativeMethod natives[] = {{"_update_splash", "()V", (void *)&update_splash},
 									{"_get_splash_handle", "()J", (void *)&get_splash_handle},
 									{"_set_exit_data", "(Ljava/lang/String;Ljava/lang/String;)V", (void *)&set_exit_data},
-									{"_set_launcher_info", "(Ljava/lang/String;Ljava/lang/String;)V", (void *)&set_launcher_info},
+									{"_set_launcher_info", "(Ljava/lang/String;Ljava/lang/String;)J", (void *)&set_launcher_info},
 									{"_show_splash", "(Ljava/lang/String;)V", (void *)&show_splash},
 									{"_takedown_splash", "()V", (void *)&takedown_splash},
 									{"_get_os_recommended_folder", "()Ljava/lang/String;", (void *)&get_os_recommended_folder}};
@@ -87,7 +88,7 @@ JNIEXPORT void JNICALL set_exit_data(JNIEnv * env, jobject obj, jstring id, jstr
 	}
 }
 
-JNIEXPORT void JNICALL set_launcher_info(JNIEnv * env, jobject obj, jstring launcher, jstring name){
+JNIEXPORT jlong JNICALL set_launcher_info(JNIEnv * env, jobject obj, jstring launcher, jstring name){
 	const _TCHAR* launcherPath = NULL;
 	const _TCHAR* launcherName = NULL;
 	
@@ -106,6 +107,8 @@ JNIEXPORT void JNICALL set_launcher_info(JNIEnv * env, jobject obj, jstring laun
 			JNI_ReleaseStringChars(env, name, launcherName);
 		}
 	}
+
+	return (jlong) (intptr_t) getOfficialNameAddress();
 }
 
 
@@ -576,5 +579,4 @@ static int shouldShutdown(JNIEnv * env) {
 	}
 	return (result == 0);
 }
-
 

@@ -46,9 +46,9 @@ JNIEXPORT void JNICALL set_exit_data(JNIEnv *, jobject, jstring, jstring);
 
 /*
  * org_eclipse_equinox_launcher_JNIBridge#_set_launcher_info
- * Signature: (Ljava/lang/String;Ljava/lang/String;)V
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)J
  */
-JNIEXPORT void JNICALL set_launcher_info(JNIEnv *, jobject, jstring, jstring);
+JNIEXPORT jlong JNICALL set_launcher_info(JNIEnv *, jobject, jstring, jstring);
 
 /*
  * org_eclipse_equinox_launcher_JNIBridge#_update_splash

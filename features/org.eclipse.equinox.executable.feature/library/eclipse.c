@@ -1224,6 +1224,10 @@ _TCHAR* getOfficialName() {
 	return officialName;
 }
 
+_TCHAR** getOfficialNameAddress() {
+	return &officialName;
+}
+
 void setOfficialName(_TCHAR* name) {
 	officialName = name;
 }

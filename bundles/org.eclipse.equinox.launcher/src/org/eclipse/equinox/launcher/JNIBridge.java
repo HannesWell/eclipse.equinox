@@ -24,7 +24,7 @@ package org.eclipse.equinox.launcher;
 class JNIBridge {
 	private native void _set_exit_data(String sharedId, String data);
 
-	private native void _set_launcher_info(String launcher, String name);
+	private native long _set_launcher_info(String launcher, String name);
 
 	private native void _update_splash();
 
@@ -70,16 +70,15 @@ class JNIBridge {
 		}
 	}
 
-	public boolean setLauncherInfo(String launcher, String name) {
+	public long setLauncherInfo(String launcher, String name) {
 		try {
-			_set_launcher_info(launcher, name);
-			return true;
+			return _set_launcher_info(launcher, name);
 		} catch (UnsatisfiedLinkError e) {
 			if (!libraryLoaded) {
 				loadLibrary();
 				return setLauncherInfo(launcher, name);
 			}
-			return false;
+			return 0;
 		}
 	}
 

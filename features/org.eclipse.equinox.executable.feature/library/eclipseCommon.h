@@ -120,6 +120,8 @@ extern _TCHAR* getProgramDir();
 
 extern _TCHAR* getOfficialName();
 
+extern _TCHAR** getOfficialNameAddress();
+
 extern void setOfficialName(_TCHAR * name);
 
 extern _TCHAR* getProgramPath();
