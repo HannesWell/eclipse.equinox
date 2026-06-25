@@ -34,7 +34,7 @@ jobs:
            done
 
       - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
+        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
         with:
           commit:      ${{ github.event.workflow_run.head_sha }}
           junit_files: "artifacts/**/*-reports/*.xml"
@@ -81,7 +81,7 @@ jobs:
            done
 
       - name: Parse TCK Results of ${{ matrix.tck.name }}
-        uses: EnricoMi/publish-unit-test-result-action@v2
+        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
         id: test-results
         if: always()
         with:
@@ -106,7 +106,7 @@ jobs:
            ;;
            esac
       - name: Create badge of ${{ matrix.tck.name }}
-        uses: emibcn/badge-action@f9150fde070fcca0c4e832437611b44838fcd325
+        uses: emibcn/badge-action@f9150fde070fcca0c4e832437611b44838fcd325 # v2.0.4
         with:
           # label: ${{ matrix.tck.chapter }} - ${{ matrix.tck.label }} ${{ matrix.tck.suffix }}
           label:  '${{ fromJSON( steps.test-results.outputs.json ).formatted.stats.tests }} tests'
